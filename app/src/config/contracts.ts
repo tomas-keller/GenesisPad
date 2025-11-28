@@ -1,5 +1,5 @@
 // Auto-generated from Hardhat artifacts. Replace FACTORY_ADDRESS after deploying to Sepolia.
-export const FACTORY_ADDRESS = '0x0000000000000000000000000000000000000000' as const;
+export const FACTORY_ADDRESS = '0xb632ada52e9B8297D30c90C983704a37CF68D940' as const;
 
 export const FACTORY_ABI = [
   {
