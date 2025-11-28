@@ -1,4 +1,5 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import type { FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAccount, usePublicClient } from 'wagmi';
 import { ethers } from 'ethers';
 import { formatEther } from 'viem';
@@ -15,6 +16,16 @@ type TokenMetadata = {
   mintedSupply: bigint;
   initialPriceWei: bigint;
   creator: string;
+};
+
+type FactoryTokenResponse = {
+  token: `0x${string}`;
+  name: string;
+  symbol: string;
+  maxSupply: bigint;
+  mintedSupply: bigint;
+  initialPriceWei: bigint;
+  creator: `0x${string}`;
 };
 
 type FormState = {
@@ -45,7 +56,7 @@ export function GenesisPad() {
   const [mintInputs, setMintInputs] = useState<Record<string, string>>({});
 
   const isSepolia = useMemo(() => chainId === 11155111, [chainId]);
-  const factoryConfigured = FACTORY_ADDRESS !== PLACEHOLDER_FACTORY;
+  const factoryConfigured = FACTORY_ADDRESS.toLowerCase() !== PLACEHOLDER_FACTORY;
 
   const fetchTokens = useCallback(async () => {
     if (!publicClient) return;
@@ -62,9 +73,19 @@ export function GenesisPad() {
         address: FACTORY_ADDRESS,
         abi: FACTORY_ABI,
         functionName: 'getTokens',
-      })) as TokenMetadata[];
+      })) as readonly FactoryTokenResponse[];
 
-      setTokens(result);
+      const normalized: TokenMetadata[] = result.map((item) => ({
+        address: item.token,
+        name: item.name,
+        symbol: item.symbol,
+        maxSupply: item.maxSupply,
+        mintedSupply: item.mintedSupply,
+        initialPriceWei: item.initialPriceWei,
+        creator: item.creator,
+      }));
+
+      setTokens(normalized);
     } catch (error) {
       console.error(error);
       setErrorMessage('Unable to load tokens from the factory.');
